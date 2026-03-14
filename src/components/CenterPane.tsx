@@ -1,12 +1,23 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState, forwardRef } from 'react';
-import { Stage, Layer, Image as KonvaImage, Text as KonvaText, Transformer, Rect } from 'react-konva';
-import type Konva from 'konva';
-import { useEditorStore, type ImageLayer, type TextLayer } from '@/hooks/useEditorStore';
-import { setStage } from '@/hooks/useStageRef';
-import Toolbar from './Toolbar';
-import CropOverlay from './CropOverlay';
+import { useEffect, useRef, useState, forwardRef } from "react";
+import {
+  Stage,
+  Layer,
+  Image as KonvaImage,
+  Text as KonvaText,
+  Transformer,
+  Rect,
+} from "react-konva";
+import type Konva from "konva";
+import {
+  useEditorStore,
+  type ImageLayer,
+  type TextLayer,
+} from "@/hooks/useEditorStore";
+import { setStage } from "@/hooks/useStageRef";
+import Toolbar from "./Toolbar";
+import CropOverlay from "./CropOverlay";
 
 export const CANVAS_WIDTH = 600;
 
@@ -14,9 +25,12 @@ export const CANVAS_WIDTH = 600;
 function useHTMLImage(src: string | null) {
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   useEffect(() => {
-    if (!src) { setImg(null); return; }
+    if (!src) {
+      setImg(null);
+      return;
+    }
     const el = new window.Image();
-    el.crossOrigin = 'anonymous';
+    el.crossOrigin = "anonymous";
     el.onload = () => setImg(el);
     el.src = src;
   }, [src]);
@@ -25,14 +39,22 @@ function useHTMLImage(src: string | null) {
 
 // ─── Image node ───────────────────────────────────────────────────────────────
 
-const CanvasImageNode = forwardRef<Konva.Image, {
-  layer: ImageLayer;
-  canvasWidth: number;
-  canvasHeight: number;
-  onSelect: () => void;
-  onDragEnd: (x: number, y: number) => void;
-  onTransformEnd: (x: number, y: number, width: number, height: number) => void;
-}>(function CanvasImageNode(
+const CanvasImageNode = forwardRef<
+  Konva.Image,
+  {
+    layer: ImageLayer;
+    canvasWidth: number;
+    canvasHeight: number;
+    onSelect: () => void;
+    onDragEnd: (x: number, y: number) => void;
+    onTransformEnd: (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+    ) => void;
+  }
+>(function CanvasImageNode(
   { layer, canvasWidth, canvasHeight, onSelect, onDragEnd, onTransformEnd },
   ref,
 ) {
@@ -50,14 +72,14 @@ const CanvasImageNode = forwardRef<Konva.Image, {
       visible={layer.visible}
       listening={!layer.locked}
       draggable={!layer.locked}
-      dragBoundFunc={pos => ({
+      dragBoundFunc={(pos) => ({
         x: Math.max(-(layer.width - 20), Math.min(pos.x, canvasWidth - 20)),
         y: Math.max(-(layer.height - 20), Math.min(pos.y, canvasHeight - 20)),
       })}
       onClick={onSelect}
       onTap={onSelect}
-      onDragEnd={e => onDragEnd(e.target.x(), e.target.y())}
-      onTransformEnd={e => {
+      onDragEnd={(e) => onDragEnd(e.target.x(), e.target.y())}
+      onTransformEnd={(e) => {
         const node = e.target as Konva.Image;
         const scaleX = node.scaleX();
         const scaleY = node.scaleY();
@@ -76,21 +98,40 @@ const CanvasImageNode = forwardRef<Konva.Image, {
 
 // ─── Text node ────────────────────────────────────────────────────────────────
 
-const CanvasTextNode = forwardRef<Konva.Text, {
-  layer: TextLayer;
-  isEditing: boolean;
-  canvasWidth: number;
-  canvasHeight: number;
-  onSelect: () => void;
-  onDblClick: () => void;
-  onDragEnd: (x: number, y: number) => void;
-  onTransformEnd: (x: number, y: number, width: number, height: number) => void;
-}>(function CanvasTextNode(
-  { layer, isEditing, canvasWidth, canvasHeight, onSelect, onDblClick, onDragEnd, onTransformEnd },
+const CanvasTextNode = forwardRef<
+  Konva.Text,
+  {
+    layer: TextLayer;
+    isEditing: boolean;
+    canvasWidth: number;
+    canvasHeight: number;
+    onSelect: () => void;
+    onDblClick: () => void;
+    onDragEnd: (x: number, y: number) => void;
+    onTransformEnd: (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+    ) => void;
+  }
+>(function CanvasTextNode(
+  {
+    layer,
+    isEditing,
+    canvasWidth,
+    canvasHeight,
+    onSelect,
+    onDblClick,
+    onDragEnd,
+    onTransformEnd,
+  },
   ref,
 ) {
   const { style } = layer;
-  const displayText = style.forceCapitalize ? style.text.toUpperCase() : style.text;
+  const displayText = style.forceCapitalize
+    ? style.text.toUpperCase()
+    : style.text;
 
   return (
     <KonvaText
@@ -106,7 +147,7 @@ const CanvasTextNode = forwardRef<Konva.Text, {
       stroke={style.stroke}
       strokeWidth={style.strokeWidth}
       shadowColor={style.shadowColor}
-      shadowBlur={style.shadowColor !== 'transparent' ? 4 : 0}
+      shadowBlur={style.shadowColor !== "transparent" ? 4 : 0}
       align={style.align}
       verticalAlign={style.verticalAlign}
       opacity={style.opacity}
@@ -116,7 +157,7 @@ const CanvasTextNode = forwardRef<Konva.Text, {
       wrap="word"
       draggable={!layer.locked}
       // Keep at least 20px of the layer visible on each axis
-      dragBoundFunc={pos => ({
+      dragBoundFunc={(pos) => ({
         x: Math.max(-(layer.width - 20), Math.min(pos.x, canvasWidth - 20)),
         y: Math.max(-(layer.height - 20), Math.min(pos.y, canvasHeight - 20)),
       })}
@@ -124,8 +165,8 @@ const CanvasTextNode = forwardRef<Konva.Text, {
       onTap={onSelect}
       onDblClick={onDblClick}
       onDblTap={onDblClick}
-      onDragEnd={e => onDragEnd(e.target.x(), e.target.y())}
-      onTransformEnd={e => {
+      onDragEnd={(e) => onDragEnd(e.target.x(), e.target.y())}
+      onTransformEnd={(e) => {
         const node = e.target as Konva.Text;
         const scaleX = node.scaleX();
         const scaleY = node.scaleY();
@@ -168,11 +209,11 @@ function TextEditOverlay({
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       commit();
     }
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       commit();
     }
   }
@@ -186,7 +227,7 @@ function TextEditOverlay({
             ` ${style.strokeWidth}px -${style.strokeWidth}px 0 ${style.stroke}`,
             `-${style.strokeWidth}px  ${style.strokeWidth}px 0 ${style.stroke}`,
             ` ${style.strokeWidth}px  ${style.strokeWidth}px 0 ${style.stroke}`,
-          ].join(','),
+          ].join(","),
         }
       : {};
 
@@ -194,11 +235,11 @@ function TextEditOverlay({
     <textarea
       ref={textareaRef}
       value={value}
-      onChange={e => setValue(e.target.value)}
+      onChange={(e) => setValue(e.target.value)}
       onBlur={commit}
       onKeyDown={handleKeyDown}
       style={{
-        position: 'absolute',
+        position: "absolute",
         left: layer.x,
         top: layer.y,
         width: layer.width,
@@ -208,15 +249,15 @@ function TextEditOverlay({
         color: style.fill,
         textAlign: style.align,
         opacity: style.opacity,
-        background: 'transparent',
-        border: '1px dashed #3b82f6',
-        outline: 'none',
-        resize: 'none',
-        overflow: 'hidden',
+        background: "transparent",
+        border: "1px dashed #3b82f6",
+        outline: "none",
+        resize: "none",
+        overflow: "hidden",
         lineHeight: 1.2,
         padding: 0,
         margin: 0,
-        boxSizing: 'border-box',
+        boxSizing: "border-box",
         ...shadowStyle,
       }}
     />
@@ -237,11 +278,11 @@ export default function CenterPane() {
   const [shiftHeld, setShiftHeld] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => setShiftHeld(e.shiftKey);
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('keyup', onKey);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKey);
     return () => {
-      window.removeEventListener('keydown', onKey);
-      window.removeEventListener('keyup', onKey);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onKey);
     };
   }, []);
 
@@ -270,11 +311,12 @@ export default function CenterPane() {
     return () => setStage(null);
   }, [mounted]);
 
-  const imageLayer = layers.find((l): l is ImageLayer => l.type === 'image');
-  const textLayers = layers.filter((l): l is TextLayer => l.type === 'text');
+  const imageLayer = layers.find((l): l is ImageLayer => l.type === "image");
+  const textLayers = layers.filter((l): l is TextLayer => l.type === "text");
 
-  const canvasHeight = canvasHeightOverride
-    ?? ((imageLayer?.height ?? 400) + canvasPaddingTop + canvasPaddingBottom);
+  const canvasHeight =
+    canvasHeightOverride ??
+    (imageLayer?.height ?? 400) + canvasPaddingTop + canvasPaddingBottom;
 
   // Scale preview to fit the visible canvas area (export is always full-res)
   useEffect(() => {
@@ -295,8 +337,10 @@ export default function CenterPane() {
     const tr = transformerRef.current;
     if (!tr) return;
     if (selectedLayerId && !editingLayerId) {
-      const selectedLayer = layers.find(l => l.id === selectedLayerId);
-      const node = !selectedLayer?.locked ? nodeRefs.current.get(selectedLayerId) : undefined;
+      const selectedLayer = layers.find((l) => l.id === selectedLayerId);
+      const node = !selectedLayer?.locked
+        ? nodeRefs.current.get(selectedLayerId)
+        : undefined;
       tr.nodes(node ? [node] : []);
     } else {
       tr.nodes([]);
@@ -304,8 +348,10 @@ export default function CenterPane() {
     tr.getLayer()?.batchDraw();
   }, [selectedLayerId, editingLayerId, layers]);
 
-  function handleStageClick(e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) {
-    if (e.target === e.target.getStage() || e.target.name() === 'bg') {
+  function handleStageClick(
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>,
+  ) {
+    if (e.target === e.target.getStage() || e.target.name() === "bg") {
       setEditingLayerId(null);
       selectLayer(null);
     }
@@ -317,16 +363,21 @@ export default function CenterPane() {
   }
 
   function commitEdit(layerId: string, text: string) {
-    updateLayer(layerId, { style: { text } } as Parameters<typeof updateLayer>[1]);
+    updateLayer(layerId, { style: { text } } as Parameters<
+      typeof updateLayer
+    >[1]);
     setEditingLayerId(null);
   }
 
   return (
-    <main className="flex flex-col items-center overflow-y-auto rounded-xl bg-[#1a1a1a]">
+    <main className="flex flex-col items-center rounded-xl bg-[#1a1a1a]">
       <Toolbar />
 
       {/* Canvas area — min-h-0 + overflow-hidden keeps flex-1 at viewport height */}
-      <div ref={canvasAreaRef} className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-8">
+      <div
+        ref={canvasAreaRef}
+        className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-8"
+      >
         {/* zoom shrinks the whole group in layout-space — no coordinate glitches with Konva */}
         <div
           className="flex flex-col items-center gap-0"
@@ -337,122 +388,133 @@ export default function CenterPane() {
 
           {/* position:relative is the anchor for the textarea overlay */}
           <div className="relative shadow-2xl" style={{ width: CANVAS_WIDTH }}>
-          {mounted && (
-            <Stage
-              ref={stageRef}
-              width={CANVAS_WIDTH}
-              height={canvasHeight}
-              onClick={handleStageClick}
-              onTap={handleStageClick}
-            >
-              <Layer>
-                {/* White background */}
-                <Rect
-                  name="bg"
-                  x={0}
-                  y={0}
-                  width={CANVAS_WIDTH}
-                  height={canvasHeight}
-                  fill="#ffffff"
-                />
+            {mounted && (
+              <Stage
+                ref={stageRef}
+                width={CANVAS_WIDTH}
+                height={canvasHeight}
+                onClick={handleStageClick}
+                onTap={handleStageClick}
+              >
+                <Layer>
+                  {/* White background */}
+                  <Rect
+                    name="bg"
+                    x={0}
+                    y={0}
+                    width={CANVAS_WIDTH}
+                    height={canvasHeight}
+                    fill="#ffffff"
+                  />
 
-                {/* Image layers (bottom) */}
-                {layers
-                  .filter((l): l is ImageLayer => l.type === 'image' && l.visible)
-                  .map(l => (
-                    <CanvasImageNode
-                      key={l.id}
-                      ref={node => {
-                        if (node) nodeRefs.current.set(l.id, node);
-                        else nodeRefs.current.delete(l.id);
-                      }}
-                      layer={l}
-                      canvasWidth={CANVAS_WIDTH}
-                      canvasHeight={canvasHeight}
-                      onSelect={() => selectLayer(l.id)}
-                      onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
-                      onTransformEnd={(x, y, width, height) =>
-                        updateLayer(l.id, { x, y, width, height })
-                      }
-                    />
-                  ))}
+                  {/* Image layers (bottom) */}
+                  {layers
+                    .filter(
+                      (l): l is ImageLayer => l.type === "image" && l.visible,
+                    )
+                    .map((l) => (
+                      <CanvasImageNode
+                        key={l.id}
+                        ref={(node) => {
+                          if (node) nodeRefs.current.set(l.id, node);
+                          else nodeRefs.current.delete(l.id);
+                        }}
+                        layer={l}
+                        canvasWidth={CANVAS_WIDTH}
+                        canvasHeight={canvasHeight}
+                        onSelect={() => selectLayer(l.id)}
+                        onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
+                        onTransformEnd={(x, y, width, height) =>
+                          updateLayer(l.id, { x, y, width, height })
+                        }
+                      />
+                    ))}
 
-                {/* Text layers */}
-                {textLayers
-                  .filter(l => l.visible)
-                  .map(l => (
-                    <CanvasTextNode
-                      key={l.id}
-                      ref={node => {
-                        if (node) nodeRefs.current.set(l.id, node);
-                        else nodeRefs.current.delete(l.id);
-                      }}
-                      layer={l}
-                      isEditing={editingLayerId === l.id}
-                      canvasWidth={CANVAS_WIDTH}
-                      canvasHeight={canvasHeight}
-                      onSelect={() => selectLayer(l.id)}
-                      onDblClick={() => handleDblClick(l.id)}
-                      onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
-                      onTransformEnd={(x, y, width, height) =>
-                        updateLayer(l.id, { x, y, width, height })
-                      }
-                    />
-                  ))}
+                  {/* Text layers */}
+                  {textLayers
+                    .filter((l) => l.visible)
+                    .map((l) => (
+                      <CanvasTextNode
+                        key={l.id}
+                        ref={(node) => {
+                          if (node) nodeRefs.current.set(l.id, node);
+                          else nodeRefs.current.delete(l.id);
+                        }}
+                        layer={l}
+                        isEditing={editingLayerId === l.id}
+                        canvasWidth={CANVAS_WIDTH}
+                        canvasHeight={canvasHeight}
+                        onSelect={() => selectLayer(l.id)}
+                        onDblClick={() => handleDblClick(l.id)}
+                        onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
+                        onTransformEnd={(x, y, width, height) =>
+                          updateLayer(l.id, { x, y, width, height })
+                        }
+                      />
+                    ))}
 
-                {/* Transformer */}
-                <Transformer
-                  ref={transformerRef}
-                  rotateEnabled={false}
-                  keepRatio={shiftHeld}
-                  anchorFill="#3b82f6"
-                  anchorStroke="#1d4ed8"
-                  anchorSize={8}
-                  anchorCornerRadius={2}
-                  borderStroke="#3b82f6"
-                  borderStrokeWidth={1}
-                  borderDash={[4, 2]}
-                  boundBoxFunc={(oldBox, newBox) => {
-                    if (newBox.width < 40 || newBox.height < 20) return oldBox;
-                    return newBox;
-                  }}
-                />
-              </Layer>
-            </Stage>
-          )}
+                  {/* Transformer */}
+                  <Transformer
+                    ref={transformerRef}
+                    rotateEnabled={false}
+                    keepRatio={shiftHeld}
+                    anchorFill="#3b82f6"
+                    anchorStroke="#1d4ed8"
+                    anchorSize={8}
+                    anchorCornerRadius={2}
+                    borderStroke="#3b82f6"
+                    borderStrokeWidth={1}
+                    borderDash={[4, 2]}
+                    boundBoxFunc={(oldBox, newBox) => {
+                      if (newBox.width < 40 || newBox.height < 20)
+                        return oldBox;
+                      return newBox;
+                    }}
+                  />
+                </Layer>
+              </Stage>
+            )}
 
-          {/* Textarea overlay — rendered in DOM above the canvas */}
-          {mounted && editingLayerId && (() => {
-            const layer = textLayers.find(l => l.id === editingLayerId);
-            if (!layer) return null;
-            return (
-              <TextEditOverlay
-                key={editingLayerId}
-                layer={layer}
-                onCommit={text => commitEdit(editingLayerId, text)}
+            {/* Textarea overlay — rendered in DOM above the canvas */}
+            {mounted &&
+              editingLayerId &&
+              (() => {
+                const layer = textLayers.find((l) => l.id === editingLayerId);
+                if (!layer) return null;
+                return (
+                  <TextEditOverlay
+                    key={editingLayerId}
+                    layer={layer}
+                    onCommit={(text) => commitEdit(editingLayerId, text)}
+                  />
+                );
+              })()}
+
+            {/* Empty state */}
+            {!imageLayer && mounted && (
+              <div
+                className="absolute inset-0 flex items-center justify-center bg-white"
+                style={{ height: canvasHeight }}
+              >
+                <p className="text-sm text-gray-400">
+                  Select a template or upload an image
+                </p>
+              </div>
+            )}
+
+            {/* Crop overlay */}
+            {cropMode && mounted && (
+              <CropOverlay
+                canvasWidth={CANVAS_WIDTH}
+                canvasHeight={canvasHeight}
               />
-            );
-          })()}
-
-          {/* Empty state */}
-          {!imageLayer && mounted && (
-            <div
-              className="absolute inset-0 flex items-center justify-center bg-white"
-              style={{ height: canvasHeight }}
-            >
-              <p className="text-sm text-gray-400">Select a template or upload an image</p>
-            </div>
-          )}
-
-          {/* Crop overlay */}
-          {cropMode && mounted && (
-            <CropOverlay canvasWidth={CANVAS_WIDTH} canvasHeight={canvasHeight} />
-          )}
+            )}
           </div>
 
           {/* + button below canvas */}
           <PaddingButton onClick={addPaddingBottom} />
-        </div>{/* zoom flex col */}
+        </div>
+        {/* zoom flex col */}
       </div>
     </main>
   );
