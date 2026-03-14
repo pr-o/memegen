@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, forwardRef } from 'react';
 import { Stage, Layer, Image as KonvaImage, Text as KonvaText, Transformer, Rect } from 'react-konva';
 import type Konva from 'konva';
 import { useEditorStore, type ImageLayer, type TextLayer } from '@/hooks/useEditorStore';
+import { setStage } from '@/hooks/useStageRef';
 import Toolbar from './Toolbar';
 
 export const CANVAS_WIDTH = 600;
@@ -202,8 +203,15 @@ export default function CenterPane() {
     addPaddingBottom,
   } = useEditorStore();
 
+  const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const nodeRefs = useRef<Map<string, Konva.Text>>(new Map());
+
+  // Register stage instance for export
+  useEffect(() => {
+    if (stageRef.current) setStage(stageRef.current);
+    return () => setStage(null);
+  }, [mounted]);
 
   const imageLayer = layers.find((l): l is ImageLayer => l.type === 'image');
   const textLayers = layers.filter((l): l is TextLayer => l.type === 'text');
@@ -255,6 +263,7 @@ export default function CenterPane() {
           <div className="relative shadow-2xl" style={{ width: CANVAS_WIDTH }}>
           {mounted && (
             <Stage
+              ref={stageRef}
               width={CANVAS_WIDTH}
               height={canvasHeight}
               onClick={handleStageClick}
