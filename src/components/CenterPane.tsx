@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, forwardRef } from 'react';
 import { Stage, Layer, Image as KonvaImage, Text as KonvaText, Transformer, Rect } from 'react-konva';
 import type Konva from 'konva';
 import { useEditorStore, type ImageLayer, type TextLayer } from '@/hooks/useEditorStore';
+import Toolbar from './Toolbar';
 
 export const CANVAS_WIDTH = 600;
 
@@ -240,10 +241,7 @@ export default function CenterPane() {
 
   return (
     <main className="flex h-full flex-1 flex-col items-center overflow-y-auto bg-[#111]">
-      {/* Toolbar placeholder — implemented in Step 11 */}
-      <div className="flex w-full shrink-0 items-center gap-1 border-b border-[#2a2a2a] bg-[#1a1a1a] px-3 py-2">
-        <span className="text-xs text-muted-foreground">Toolbar</span>
-      </div>
+      <Toolbar />
 
       {/* Canvas area */}
       <div className="flex flex-1 items-start justify-center py-8">
