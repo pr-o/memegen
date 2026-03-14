@@ -48,12 +48,14 @@ function CanvasImageNode({ layer }: { layer: ImageLayer }) {
 const CanvasTextNode = forwardRef<Konva.Text, {
   layer: TextLayer;
   isEditing: boolean;
+  canvasWidth: number;
+  canvasHeight: number;
   onSelect: () => void;
   onDblClick: () => void;
   onDragEnd: (x: number, y: number) => void;
   onTransformEnd: (x: number, y: number, width: number, height: number) => void;
 }>(function CanvasTextNode(
-  { layer, isEditing, onSelect, onDblClick, onDragEnd, onTransformEnd },
+  { layer, isEditing, canvasWidth, canvasHeight, onSelect, onDblClick, onDragEnd, onTransformEnd },
   ref,
 ) {
   const { style } = layer;
@@ -81,6 +83,11 @@ const CanvasTextNode = forwardRef<Konva.Text, {
       visible={layer.visible && !isEditing}
       wrap="word"
       draggable={!layer.locked}
+      // Keep at least 20px of the layer visible on each axis
+      dragBoundFunc={pos => ({
+        x: Math.max(-(layer.width - 20), Math.min(pos.x, canvasWidth - 20)),
+        y: Math.max(-(layer.height - 20), Math.min(pos.y, canvasHeight - 20)),
+      })}
       onClick={onSelect}
       onTap={onSelect}
       onDblClick={onDblClick}
@@ -192,6 +199,17 @@ export default function CenterPane() {
 
   // ID of the layer currently being inline-edited
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
+  // Track Shift key for aspect-ratio-locked corner resize
+  const [shiftHeld, setShiftHeld] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => setShiftHeld(e.shiftKey);
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('keyup', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keyup', onKey);
+    };
+  }, []);
 
   const {
     layers,
@@ -300,6 +318,8 @@ export default function CenterPane() {
                       }}
                       layer={l}
                       isEditing={editingLayerId === l.id}
+                      canvasWidth={CANVAS_WIDTH}
+                      canvasHeight={canvasHeight}
                       onSelect={() => selectLayer(l.id)}
                       onDblClick={() => handleDblClick(l.id)}
                       onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
@@ -313,6 +333,7 @@ export default function CenterPane() {
                 <Transformer
                   ref={transformerRef}
                   rotateEnabled={false}
+                  keepRatio={shiftHeld}
                   anchorFill="#3b82f6"
                   anchorStroke="#1d4ed8"
                   anchorSize={8}
