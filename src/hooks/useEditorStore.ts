@@ -69,6 +69,8 @@ interface EditorState {
   selectedTemplate: MemeTemplate | null;
   canvasPaddingTop: number;
   canvasPaddingBottom: number;
+  canvasHeightOverride: number | null;
+  cropMode: boolean;
   history: Layer[][];
   historyIndex: number;
 
@@ -85,6 +87,10 @@ interface EditorState {
   // Canvas padding
   addPaddingTop: () => void;
   addPaddingBottom: () => void;
+
+  // Crop
+  setCropMode: (active: boolean) => void;
+  cropCanvas: (x: number, y: number, width: number, height: number) => void;
 
   // Undo / redo
   pushHistory: () => void;
@@ -109,6 +115,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   selectedTemplate: null,
   canvasPaddingTop: 0,
   canvasPaddingBottom: 0,
+  canvasHeightOverride: null,
+  cropMode: false,
   history: [],
   historyIndex: -1,
 
@@ -196,6 +204,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       selectedTemplate: template,
       canvasPaddingTop: 0,
       canvasPaddingBottom: 0,
+      canvasHeightOverride: null,
+      cropMode: false,
       history: [],
       historyIndex: -1,
     });
@@ -215,6 +225,22 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   addPaddingBottom: () => {
     get().pushHistory();
     set(s => ({ canvasPaddingBottom: s.canvasPaddingBottom + 80 }));
+  },
+
+  // ── Crop ───────────────────────────────────────────────────────────────────
+
+  setCropMode: (active) => set({ cropMode: active }),
+
+  cropCanvas: (x, y, width, height) => {
+    get().pushHistory();
+    set(s => ({
+      cropMode: false,
+      canvasHeightOverride: height,
+      canvasPaddingTop: 0,
+      canvasPaddingBottom: 0,
+      // Shift all layers so (x, y) becomes the new (0, 0)
+      layers: s.layers.map(l => ({ ...l, x: l.x - x, y: l.y - y })),
+    }));
   },
 
   // ── Undo / Redo ────────────────────────────────────────────────────────────

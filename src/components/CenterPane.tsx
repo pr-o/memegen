@@ -6,6 +6,7 @@ import type Konva from 'konva';
 import { useEditorStore, type ImageLayer, type TextLayer } from '@/hooks/useEditorStore';
 import { setStage } from '@/hooks/useStageRef';
 import Toolbar from './Toolbar';
+import CropOverlay from './CropOverlay';
 
 export const CANVAS_WIDTH = 600;
 
@@ -197,6 +198,8 @@ export default function CenterPane() {
     selectedLayerId,
     canvasPaddingTop,
     canvasPaddingBottom,
+    canvasHeightOverride,
+    cropMode,
     selectLayer,
     updateLayer,
     addPaddingTop,
@@ -216,8 +219,8 @@ export default function CenterPane() {
   const imageLayer = layers.find((l): l is ImageLayer => l.type === 'image');
   const textLayers = layers.filter((l): l is TextLayer => l.type === 'text');
 
-  const canvasHeight =
-    (imageLayer?.height ?? 400) + canvasPaddingTop + canvasPaddingBottom;
+  const canvasHeight = canvasHeightOverride
+    ?? ((imageLayer?.height ?? 400) + canvasPaddingTop + canvasPaddingBottom);
 
   // Attach Transformer to the selected Konva node (skip while editing)
   useEffect(() => {
@@ -347,6 +350,11 @@ export default function CenterPane() {
             >
               <p className="text-sm text-gray-400">Select a template or upload an image</p>
             </div>
+          )}
+
+          {/* Crop overlay */}
+          {cropMode && mounted && (
+            <CropOverlay canvasWidth={CANVAS_WIDTH} canvasHeight={canvasHeight} />
           )}
           </div>
 

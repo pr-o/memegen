@@ -1,7 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { Type, ImagePlus, Undo2, Redo2, Crop, X } from 'lucide-react';
+import { useRef } from 'react';
+import { Type, ImagePlus, Undo2, Redo2, Crop } from 'lucide-react';
 import {
   useEditorStore,
   nextLayerId,
@@ -13,39 +13,9 @@ import { CANVAS_WIDTH } from './CenterPane';
 const TEXT_DEFAULT_W = 200;
 const TEXT_DEFAULT_H = 80;
 
-// ─── Crop Modal (placeholder) ─────────────────────────────────────────────────
-
-function CropModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="flex w-80 flex-col gap-4 rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-5 shadow-2xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-foreground">Crop Canvas</h2>
-          <button
-            onClick={onClose}
-            className="rounded p-1 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Crop functionality will be implemented in Step 14.
-        </p>
-        <button
-          onClick={onClose}
-          className="rounded-md bg-[#3b82f6] py-1.5 text-xs font-semibold text-white hover:bg-[#2563eb] transition-colors"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── Toolbar ──────────────────────────────────────────────────────────────────
 
 export default function Toolbar() {
-  const [cropOpen, setCropOpen] = useState(false);
   const mediaInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -57,6 +27,7 @@ export default function Toolbar() {
     redo,
     historyIndex,
     history,
+    setCropMode,
   } = useEditorStore();
 
   const imageLayer = layers.find(l => l.type === 'image');
@@ -131,7 +102,7 @@ export default function Toolbar() {
 
         <div className="mx-1 h-5 w-px bg-[#2a2a2a]" />
 
-        <ToolbarButton onClick={() => setCropOpen(true)} title="Crop Canvas">
+        <ToolbarButton onClick={() => setCropMode(true)} title="Crop Canvas">
           <Crop className="h-4 w-4" />
         </ToolbarButton>
 
@@ -144,7 +115,6 @@ export default function Toolbar() {
         />
       </div>
 
-      {cropOpen && <CropModal onClose={() => setCropOpen(false)} />}
     </>
   );
 }
