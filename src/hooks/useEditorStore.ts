@@ -74,7 +74,7 @@ interface EditorState {
 
   // Layer actions
   addLayer: (layer: Layer) => void;
-  updateLayer: (id: string, patch: Partial<Omit<Layer, 'id' | 'type'>>) => void;
+  updateLayer: (id: string, patch: Partial<Omit<TextLayer, 'id' | 'type'>> | Partial<Omit<ImageLayer, 'id' | 'type'>>) => void;
   removeLayer: (id: string) => void;
   reorderLayers: (fromIndex: number, toIndex: number) => void;
   selectLayer: (id: string | null) => void;

@@ -1,6 +1,7 @@
 'use client';
 
 import LayersCard from './LayersCard';
+import PropertiesCard from './PropertiesCard';
 
 export default function RightPane() {
   return (
@@ -14,9 +15,8 @@ export default function RightPane() {
 
       <LayersCard />
 
-      {/* Properties card — implemented in Step 10 */}
-      <div className="border-t border-[#2a2a2a] p-3">
-        <p className="text-xs text-muted-foreground">Select a layer to edit its properties.</p>
+      <div className="border-t border-[#2a2a2a]">
+        <PropertiesCard />
       </div>
     </aside>
   );
