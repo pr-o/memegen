@@ -198,6 +198,8 @@ export default function CenterPane() {
     canvasPaddingBottom,
     selectLayer,
     updateLayer,
+    addPaddingTop,
+    addPaddingBottom,
   } = useEditorStore();
 
   const transformerRef = useRef<Konva.Transformer>(null);
@@ -245,8 +247,12 @@ export default function CenterPane() {
 
       {/* Canvas area */}
       <div className="flex flex-1 items-start justify-center py-8">
-        {/* position:relative is the anchor for the textarea overlay */}
-        <div className="relative shadow-2xl" style={{ width: CANVAS_WIDTH }}>
+        <div className="flex flex-col items-center gap-0">
+          {/* + button above canvas */}
+          <PaddingButton onClick={addPaddingTop} />
+
+          {/* position:relative is the anchor for the textarea overlay */}
+          <div className="relative shadow-2xl" style={{ width: CANVAS_WIDTH }}>
           {mounted && (
             <Stage
               width={CANVAS_WIDTH}
@@ -333,8 +339,27 @@ export default function CenterPane() {
               <p className="text-sm text-gray-400">Select a template or upload an image</p>
             </div>
           )}
+          </div>
+
+          {/* + button below canvas */}
+          <PaddingButton onClick={addPaddingBottom} />
         </div>
       </div>
     </main>
+  );
+}
+
+// ─── Padding button ───────────────────────────────────────────────────────────
+
+function PaddingButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      title="Add padding"
+      style={{ width: CANVAS_WIDTH }}
+      className="flex h-7 items-center justify-center bg-transparent text-muted-foreground transition-colors hover:bg-[#2a2a2a] hover:text-foreground"
+    >
+      <span className="text-lg leading-none">+</span>
+    </button>
   );
 }

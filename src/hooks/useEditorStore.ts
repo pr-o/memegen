@@ -203,8 +203,19 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   // ── Canvas padding ─────────────────────────────────────────────────────────
 
-  addPaddingTop: () => set(s => ({ canvasPaddingTop: s.canvasPaddingTop + 80 })),
-  addPaddingBottom: () => set(s => ({ canvasPaddingBottom: s.canvasPaddingBottom + 80 })),
+  addPaddingTop: () => {
+    get().pushHistory();
+    set(s => ({
+      canvasPaddingTop: s.canvasPaddingTop + 80,
+      // Shift every layer down so they stay positioned relative to the image
+      layers: s.layers.map(l => ({ ...l, y: l.y + 80 })),
+    }));
+  },
+
+  addPaddingBottom: () => {
+    get().pushHistory();
+    set(s => ({ canvasPaddingBottom: s.canvasPaddingBottom + 80 }));
+  },
 
   // ── Undo / Redo ────────────────────────────────────────────────────────────
 
