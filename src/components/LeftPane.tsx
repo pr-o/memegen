@@ -8,6 +8,11 @@ import { useEditorStore, nextLayerId, type ImageLayer } from '@/hooks/useEditorS
 
 const CANVAS_WIDTH = 600;
 
+// Each thumbnail: (pane_content_width - gap) / 2 cols.
+// Pane content = 192px - 2*12px padding = 168px. (168-8)/2 = 80px/thumbnail.
+// 4 rows of 80px + 3×8px gap = 344px.
+const GRID_HEIGHT = 344;
+
 export default function LeftPane() {
   const [query, setQuery] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,30 +46,29 @@ export default function LeftPane() {
       addLayer(layer);
     };
     img.src = src;
-    // reset so same file can be re-uploaded
     e.target.value = '';
   }
 
   return (
-    <aside className="flex h-full w-[280px] shrink-0 flex-col border-r border-[#2a2a2a] bg-[#1a1a1a]">
-      {/* Top bar */}
+    <aside className="flex w-[192px] shrink-0 flex-col overflow-hidden rounded-xl bg-[#1a1a1a]">
+      {/* Search + upload */}
       <div className="flex shrink-0 items-center gap-2 border-b border-[#2a2a2a] p-3">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search templates..."
+            placeholder="Search…"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            className="h-8 w-full rounded-md border border-[#2a2a2a] bg-[#111] pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+            className="h-7 w-full rounded-md border border-[#2a2a2a] bg-[#111] pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
           />
         </div>
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-8 shrink-0 items-center gap-1 rounded-md bg-[#3b82f6] px-3 text-xs font-medium text-white hover:bg-[#2563eb] transition-colors"
+          title="Upload image"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#3b82f6] text-white hover:bg-[#2563eb] transition-colors"
         >
-          <Upload className="h-3 w-3" />
-          Upload
+          <Upload className="h-3.5 w-3.5" />
         </button>
         <input
           ref={fileInputRef}
@@ -75,8 +79,11 @@ export default function LeftPane() {
         />
       </div>
 
-      {/* Template grid */}
-      <div className="flex-1 overflow-y-auto p-3">
+      {/* Template grid — fixed height showing 2×4 thumbnails */}
+      <div
+        className="shrink-0 overflow-y-auto p-3"
+        style={{ height: GRID_HEIGHT }}
+      >
         {filtered.length === 0 ? (
           <p className="mt-4 text-center text-xs text-muted-foreground">No templates found.</p>
         ) : (
@@ -96,33 +103,34 @@ export default function LeftPane() {
                     src={template.src}
                     alt={template.name}
                     fill
-                    sizes="120px"
+                    sizes="80px"
                     className="object-cover"
                   />
                 </div>
-                <p className="truncate bg-[#111] px-1.5 py-1 text-left text-[10px] text-muted-foreground">
-                  {template.name}
-                </p>
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Template info */}
-      {selectedTemplate && (
-        <div className="shrink-0 border-t border-[#2a2a2a] p-3">
-          <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-foreground">{selectedTemplate.name}</p>
-            <button className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
-              <Share2 className="h-4 w-4" />
-            </button>
-          </div>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            {selectedTemplate.description}
-          </p>
-        </div>
-      )}
+      {/* Template info — flex-1 so it fills the remaining pane height */}
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto border-t border-[#2a2a2a] p-3">
+        {selectedTemplate ? (
+          <>
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-xs font-semibold text-foreground">{selectedTemplate.name}</p>
+              <button className="shrink-0 text-muted-foreground transition-colors hover:text-foreground">
+                <Share2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              {selectedTemplate.description}
+            </p>
+          </>
+        ) : (
+          <p className="text-[11px] text-muted-foreground">Select a template to see details.</p>
+        )}
+      </div>
     </aside>
   );
 }
