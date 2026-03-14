@@ -25,11 +25,22 @@ function useHTMLImage(src: string | null) {
 
 // ─── Image node ───────────────────────────────────────────────────────────────
 
-function CanvasImageNode({ layer }: { layer: ImageLayer }) {
+const CanvasImageNode = forwardRef<Konva.Image, {
+  layer: ImageLayer;
+  canvasWidth: number;
+  canvasHeight: number;
+  onSelect: () => void;
+  onDragEnd: (x: number, y: number) => void;
+  onTransformEnd: (x: number, y: number, width: number, height: number) => void;
+}>(function CanvasImageNode(
+  { layer, canvasWidth, canvasHeight, onSelect, onDragEnd, onTransformEnd },
+  ref,
+) {
   const img = useHTMLImage(layer.src);
   if (!img) return null;
   return (
     <KonvaImage
+      ref={ref}
       image={img}
       x={layer.x}
       y={layer.y}
@@ -37,11 +48,30 @@ function CanvasImageNode({ layer }: { layer: ImageLayer }) {
       height={layer.height}
       opacity={layer.opacity}
       visible={layer.visible}
-      draggable={false}
-      listening={false}
+      draggable={!layer.locked}
+      dragBoundFunc={pos => ({
+        x: Math.max(-(layer.width - 20), Math.min(pos.x, canvasWidth - 20)),
+        y: Math.max(-(layer.height - 20), Math.min(pos.y, canvasHeight - 20)),
+      })}
+      onClick={onSelect}
+      onTap={onSelect}
+      onDragEnd={e => onDragEnd(e.target.x(), e.target.y())}
+      onTransformEnd={e => {
+        const node = e.target as Konva.Image;
+        const scaleX = node.scaleX();
+        const scaleY = node.scaleY();
+        node.scaleX(1);
+        node.scaleY(1);
+        onTransformEnd(
+          node.x(),
+          node.y(),
+          Math.max(40, node.width() * scaleX),
+          Math.max(20, node.height() * scaleY),
+        );
+      }}
     />
   );
-}
+});
 
 // ─── Text node ────────────────────────────────────────────────────────────────
 
@@ -226,7 +256,7 @@ export default function CenterPane() {
 
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
-  const nodeRefs = useRef<Map<string, Konva.Text>>(new Map());
+  const nodeRefs = useRef<Map<string, Konva.Node>>(new Map());
 
   // Register stage instance for export
   useEffect(() => {
@@ -304,7 +334,23 @@ export default function CenterPane() {
                 {/* Image layers (bottom) */}
                 {layers
                   .filter((l): l is ImageLayer => l.type === 'image' && l.visible)
-                  .map(l => <CanvasImageNode key={l.id} layer={l} />)}
+                  .map(l => (
+                    <CanvasImageNode
+                      key={l.id}
+                      ref={node => {
+                        if (node) nodeRefs.current.set(l.id, node);
+                        else nodeRefs.current.delete(l.id);
+                      }}
+                      layer={l}
+                      canvasWidth={CANVAS_WIDTH}
+                      canvasHeight={canvasHeight}
+                      onSelect={() => selectLayer(l.id)}
+                      onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
+                      onTransformEnd={(x, y, width, height) =>
+                        updateLayer(l.id, { x, y, width, height })
+                      }
+                    />
+                  ))}
 
                 {/* Text layers */}
                 {textLayers
