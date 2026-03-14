@@ -225,6 +225,8 @@ function TextEditOverlay({
 
 // ─── CenterPane ───────────────────────────────────────────────────────────────
 
+const PADDING_BUTTON_H = 28; // h-7 = 1.75rem = 28 px
+
 export default function CenterPane() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -259,6 +261,8 @@ export default function CenterPane() {
   const stageRef = useRef<Konva.Stage>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
   const nodeRefs = useRef<Map<string, Konva.Node>>(new Map());
+  const canvasAreaRef = useRef<HTMLDivElement>(null);
+  const [previewScale, setPreviewScale] = useState(1);
 
   // Register stage instance for export
   useEffect(() => {
@@ -271,6 +275,20 @@ export default function CenterPane() {
 
   const canvasHeight = canvasHeightOverride
     ?? ((imageLayer?.height ?? 400) + canvasPaddingTop + canvasPaddingBottom);
+
+  // Scale preview to fit the visible canvas area (export is always full-res)
+  useEffect(() => {
+    const el = canvasAreaRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      // clientHeight includes py-8 padding (64px); buttons are inside the zoomed group
+      const available = el.clientHeight - 64;
+      const total = canvasHeight + PADDING_BUTTON_H * 2;
+      setPreviewScale(Math.min(1, available / total));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [canvasHeight]);
 
   // Attach Transformer to the selected Konva node (skip while editing)
   useEffect(() => {
@@ -308,8 +326,12 @@ export default function CenterPane() {
       <Toolbar />
 
       {/* Canvas area */}
-      <div className="flex flex-1 items-start justify-center py-8">
-        <div className="flex flex-col items-center gap-0">
+      <div ref={canvasAreaRef} className="flex flex-1 items-center justify-center py-8">
+        {/* zoom shrinks the whole group in layout-space — no coordinate glitches with Konva */}
+        <div
+          className="flex flex-col items-center gap-0"
+          style={{ zoom: previewScale, width: CANVAS_WIDTH }}
+        >
           {/* + button above canvas */}
           <PaddingButton onClick={addPaddingTop} />
 
@@ -430,7 +452,7 @@ export default function CenterPane() {
 
           {/* + button below canvas */}
           <PaddingButton onClick={addPaddingBottom} />
-        </div>
+        </div>{/* zoom flex col */}
       </div>
     </main>
   );
