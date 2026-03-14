@@ -325,8 +325,8 @@ export default function CenterPane() {
     <main className="flex h-full flex-1 flex-col items-center overflow-y-auto bg-[#111]">
       <Toolbar />
 
-      {/* Canvas area */}
-      <div ref={canvasAreaRef} className="flex flex-1 items-center justify-center py-8">
+      {/* Canvas area — min-h-0 + overflow-hidden keeps flex-1 at viewport height */}
+      <div ref={canvasAreaRef} className="flex min-h-0 flex-1 items-center justify-center overflow-hidden py-8">
         {/* zoom shrinks the whole group in layout-space — no coordinate glitches with Konva */}
         <div
           className="flex flex-col items-center gap-0"
