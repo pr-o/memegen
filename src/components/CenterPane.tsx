@@ -48,6 +48,7 @@ const CanvasImageNode = forwardRef<Konva.Image, {
       height={layer.height}
       opacity={layer.opacity}
       visible={layer.visible}
+      listening={!layer.locked}
       draggable={!layer.locked}
       dragBoundFunc={pos => ({
         x: Math.max(-(layer.width - 20), Math.min(pos.x, canvasWidth - 20)),
@@ -111,6 +112,7 @@ const CanvasTextNode = forwardRef<Konva.Text, {
       opacity={style.opacity}
       // Hide while the textarea overlay is active
       visible={layer.visible && !isEditing}
+      listening={!layer.locked}
       wrap="word"
       draggable={!layer.locked}
       // Keep at least 20px of the layer visible on each axis
@@ -275,13 +277,14 @@ export default function CenterPane() {
     const tr = transformerRef.current;
     if (!tr) return;
     if (selectedLayerId && !editingLayerId) {
-      const node = nodeRefs.current.get(selectedLayerId);
+      const selectedLayer = layers.find(l => l.id === selectedLayerId);
+      const node = !selectedLayer?.locked ? nodeRefs.current.get(selectedLayerId) : undefined;
       tr.nodes(node ? [node] : []);
     } else {
       tr.nodes([]);
     }
     tr.getLayer()?.batchDraw();
-  }, [selectedLayerId, editingLayerId]);
+  }, [selectedLayerId, editingLayerId, layers]);
 
   function handleStageClick(e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) {
     if (e.target === e.target.getStage() || e.target.name() === 'bg') {
