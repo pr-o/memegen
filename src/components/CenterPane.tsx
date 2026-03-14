@@ -44,11 +44,15 @@ function CanvasImageNode({ layer }: { layer: ImageLayer }) {
 
 const CanvasTextNode = forwardRef<Konva.Text, {
   layer: TextLayer;
-  isSelected: boolean;
+  isEditing: boolean;
   onSelect: () => void;
+  onDblClick: () => void;
   onDragEnd: (x: number, y: number) => void;
   onTransformEnd: (x: number, y: number, width: number, height: number) => void;
-}>(function CanvasTextNode({ layer, isSelected, onSelect, onDragEnd, onTransformEnd }, ref) {
+}>(function CanvasTextNode(
+  { layer, isEditing, onSelect, onDblClick, onDragEnd, onTransformEnd },
+  ref,
+) {
   const { style } = layer;
   const displayText = style.forceCapitalize ? style.text.toUpperCase() : style.text;
 
@@ -70,14 +74,15 @@ const CanvasTextNode = forwardRef<Konva.Text, {
       align={style.align}
       verticalAlign={style.verticalAlign}
       opacity={style.opacity}
-      visible={layer.visible}
+      // Hide while the textarea overlay is active
+      visible={layer.visible && !isEditing}
       wrap="word"
       draggable={!layer.locked}
       onClick={onSelect}
       onTap={onSelect}
-      onDragEnd={e => {
-        onDragEnd(e.target.x(), e.target.y());
-      }}
+      onDblClick={onDblClick}
+      onDblTap={onDblClick}
+      onDragEnd={e => onDragEnd(e.target.x(), e.target.y())}
       onTransformEnd={e => {
         const node = e.target as Konva.Text;
         const scaleX = node.scaleX();
@@ -95,11 +100,95 @@ const CanvasTextNode = forwardRef<Konva.Text, {
   );
 });
 
+// ─── Textarea overlay ─────────────────────────────────────────────────────────
+
+function TextEditOverlay({
+  layer,
+  onCommit,
+}: {
+  layer: TextLayer;
+  onCommit: (text: string) => void;
+}) {
+  const { style } = layer;
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [value, setValue] = useState(style.text);
+
+  // Focus + select all on mount
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.focus();
+    el.select();
+  }, []);
+
+  function commit() {
+    onCommit(value);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      commit();
+    }
+    if (e.key === 'Escape') {
+      commit();
+    }
+  }
+
+  // CSS shadow approximation for stroke effect
+  const shadowStyle =
+    style.strokeWidth > 0
+      ? {
+          textShadow: [
+            `-${style.strokeWidth}px -${style.strokeWidth}px 0 ${style.stroke}`,
+            ` ${style.strokeWidth}px -${style.strokeWidth}px 0 ${style.stroke}`,
+            `-${style.strokeWidth}px  ${style.strokeWidth}px 0 ${style.stroke}`,
+            ` ${style.strokeWidth}px  ${style.strokeWidth}px 0 ${style.stroke}`,
+          ].join(','),
+        }
+      : {};
+
+  return (
+    <textarea
+      ref={textareaRef}
+      value={value}
+      onChange={e => setValue(e.target.value)}
+      onBlur={commit}
+      onKeyDown={handleKeyDown}
+      style={{
+        position: 'absolute',
+        left: layer.x,
+        top: layer.y,
+        width: layer.width,
+        minHeight: layer.height,
+        fontSize: style.fontSize,
+        fontFamily: style.fontFamily,
+        color: style.fill,
+        textAlign: style.align,
+        opacity: style.opacity,
+        background: 'transparent',
+        border: '1px dashed #3b82f6',
+        outline: 'none',
+        resize: 'none',
+        overflow: 'hidden',
+        lineHeight: 1.2,
+        padding: 0,
+        margin: 0,
+        boxSizing: 'border-box',
+        ...shadowStyle,
+      }}
+    />
+  );
+}
+
 // ─── CenterPane ───────────────────────────────────────────────────────────────
 
 export default function CenterPane() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // ID of the layer currently being inline-edited
+  const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
 
   const {
     layers,
@@ -119,28 +208,34 @@ export default function CenterPane() {
   const canvasHeight =
     (imageLayer?.height ?? 400) + canvasPaddingTop + canvasPaddingBottom;
 
-  // Attach Transformer to the selected Konva node
+  // Attach Transformer to the selected Konva node (skip while editing)
   useEffect(() => {
     const tr = transformerRef.current;
     if (!tr) return;
-    if (selectedLayerId) {
+    if (selectedLayerId && !editingLayerId) {
       const node = nodeRefs.current.get(selectedLayerId);
-      if (node) {
-        tr.nodes([node]);
-      } else {
-        tr.nodes([]);
-      }
+      tr.nodes(node ? [node] : []);
     } else {
       tr.nodes([]);
     }
     tr.getLayer()?.batchDraw();
-  }, [selectedLayerId]);
+  }, [selectedLayerId, editingLayerId]);
 
   function handleStageClick(e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) {
-    // Deselect when clicking on the stage background or the white bg rect
     if (e.target === e.target.getStage() || e.target.name() === 'bg') {
+      setEditingLayerId(null);
       selectLayer(null);
     }
+  }
+
+  function handleDblClick(layerId: string) {
+    selectLayer(layerId);
+    setEditingLayerId(layerId);
+  }
+
+  function commitEdit(layerId: string, text: string) {
+    updateLayer(layerId, { style: { text } } as Parameters<typeof updateLayer>[1]);
+    setEditingLayerId(null);
   }
 
   return (
@@ -152,6 +247,7 @@ export default function CenterPane() {
 
       {/* Canvas area */}
       <div className="flex flex-1 items-start justify-center py-8">
+        {/* position:relative is the anchor for the textarea overlay */}
         <div className="relative shadow-2xl" style={{ width: CANVAS_WIDTH }}>
           {mounted && (
             <Stage
@@ -176,7 +272,7 @@ export default function CenterPane() {
                   .filter((l): l is ImageLayer => l.type === 'image' && l.visible)
                   .map(l => <CanvasImageNode key={l.id} layer={l} />)}
 
-                {/* Text layers (top) */}
+                {/* Text layers */}
                 {textLayers
                   .filter(l => l.visible)
                   .map(l => (
@@ -187,8 +283,9 @@ export default function CenterPane() {
                         else nodeRefs.current.delete(l.id);
                       }}
                       layer={l}
-                      isSelected={selectedLayerId === l.id}
+                      isEditing={editingLayerId === l.id}
                       onSelect={() => selectLayer(l.id)}
+                      onDblClick={() => handleDblClick(l.id)}
                       onDragEnd={(x, y) => updateLayer(l.id, { x, y })}
                       onTransformEnd={(x, y, width, height) =>
                         updateLayer(l.id, { x, y, width, height })
@@ -196,7 +293,7 @@ export default function CenterPane() {
                     />
                   ))}
 
-                {/* Transformer for selected text layer */}
+                {/* Transformer */}
                 <Transformer
                   ref={transformerRef}
                   rotateEnabled={false}
@@ -215,6 +312,19 @@ export default function CenterPane() {
               </Layer>
             </Stage>
           )}
+
+          {/* Textarea overlay — rendered in DOM above the canvas */}
+          {mounted && editingLayerId && (() => {
+            const layer = textLayers.find(l => l.id === editingLayerId);
+            if (!layer) return null;
+            return (
+              <TextEditOverlay
+                key={editingLayerId}
+                layer={layer}
+                onCommit={text => commitEdit(editingLayerId, text)}
+              />
+            );
+          })()}
 
           {/* Empty state */}
           {!imageLayer && mounted && (
