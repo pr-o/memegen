@@ -372,7 +372,7 @@ export default function CenterPane() {
   }
 
   return (
-    <main className="flex flex-col items-center rounded-xl bg-[#1a1a1a]">
+    <main className="flex min-h-0 flex-1 flex-col items-center rounded-xl bg-[#1a1a1a]">
       <Toolbar />
 
       {/* Canvas area — min-h-0 + overflow-hidden keeps flex-1 at viewport height */}
