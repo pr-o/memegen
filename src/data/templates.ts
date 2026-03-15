@@ -87,8 +87,8 @@ export const templates: MemeTemplate[] = [
     textLayers: [
       {
         label: "Button 1",
-        x: 0.05,
-        y: 0.05,
+        x: 0.095,
+        y: 0.06,
         w: 0.38,
         h: 0.18,
         defaultText: "Text 1",
@@ -102,8 +102,8 @@ export const templates: MemeTemplate[] = [
       },
       {
         label: "Button 2",
-        x: 0.55,
-        y: 0.05,
+        x: 0.4,
+        y: 0.03,
         w: 0.38,
         h: 0.18,
         defaultText: "Text 2",
@@ -250,8 +250,8 @@ export const templates: MemeTemplate[] = [
     textLayers: [
       {
         label: "Robin (Top)",
-        x: 0.52,
-        y: 0.02,
+        x: 0.03,
+        y: -0.05,
         w: 0.45,
         h: 0.35,
         defaultText: "But I was just—",
@@ -265,8 +265,8 @@ export const templates: MemeTemplate[] = [
       },
       {
         label: "Batman (Bottom)",
-        x: 0.03,
-        y: 0.55,
+        x: 0.55,
+        y: -0.05,
         w: 0.45,
         h: 0.35,
         defaultText: "WRONG",
