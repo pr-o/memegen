@@ -1,21 +1,38 @@
 'use client';
 
-import { exportAsPng } from '@/hooks/useStageRef';
+import Link from 'next/link';
+import { exportAsPng, getCanvasDataUrl } from '@/hooks/useStageRef';
 import { useEditorStore } from '@/hooks/useEditorStore';
 
 export default function GNB() {
-  const { selectLayer } = useEditorStore();
+  const { selectLayer, selectedTemplate } = useEditorStore();
 
-  function handleFinish() {
+  async function handleFinish() {
     selectLayer(null);
-    setTimeout(() => exportAsPng('meme.png'), 0);
+    // Give Konva a tick to deselect the transformer before capturing
+    await new Promise((r) => setTimeout(r, 0));
+
+    const dataUrl = getCanvasDataUrl();
+    if (dataUrl) {
+      // Save to gallery in the background
+      fetch('/api/gallery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataUrl,
+          templateId: selectedTemplate?.id ?? null,
+        }),
+      }).catch(() => {/* ignore save errors */});
+    }
+
+    exportAsPng('meme.png');
   }
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
-      <span className="text-base font-bold tracking-wide text-foreground">
+      <Link href="/" className="text-base font-bold tracking-wide text-foreground hover:text-[#3b82f6] transition-colors">
         Meme Generator
-      </span>
+      </Link>
       <button
         onClick={handleFinish}
         className="rounded-md bg-[#3b82f6] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563eb]"

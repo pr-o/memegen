@@ -14,21 +14,27 @@ export function getStage(): Konva.Stage | null {
   return _stage;
 }
 
-/** Flatten the canvas to a PNG and trigger a browser download. */
-export function exportAsPng(filename = 'meme.png') {
+/** Return the canvas as a PNG data URL without triggering a download. */
+export function getCanvasDataUrl(): string | null {
   const stage = _stage;
-  if (!stage) return;
+  if (!stage) return null;
 
-  // Temporarily hide Transformer nodes so they don't appear in the export
   const transformers = stage.find('Transformer');
   transformers.forEach(node => node.hide());
   stage.batchDraw();
 
   const dataURL = stage.toDataURL({ pixelRatio: 2, mimeType: 'image/png' });
 
-  // Restore Transformer visibility
   transformers.forEach(node => node.show());
   stage.batchDraw();
+
+  return dataURL;
+}
+
+/** Flatten the canvas to a PNG and trigger a browser download. */
+export function exportAsPng(filename = 'meme.png') {
+  const dataURL = getCanvasDataUrl();
+  if (!dataURL) return;
 
   const a = document.createElement('a');
   a.href = dataURL;

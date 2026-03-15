@@ -1,29 +1,87 @@
-import LeftPane from "@/components/LeftPane";
-import CenterPane from "@/components/CenterPane";
-import RightPane from "@/components/RightPane";
-import KeyboardHandler from "@/components/KeyboardHandler";
-import GNB from "@/components/GNB";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+
+interface GalleryEntry {
+  id: string;
+  filename: string;
+  templateId: string | null;
+  createdAt: string;
+}
+
+export default function GalleryPage() {
+  const [entries, setEntries] = useState<GalleryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((data) => setEntries(data as GalleryEntry[]))
+      .catch(() => setEntries([]))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#111]">
-      <GNB />
-      <KeyboardHandler />
-      <div className="container mx-auto flex min-h-0 flex-1 flex-col px-2">
-        <div className="flex min-h-0 flex-1 flex-col">
-          <div className="grid min-h-0 min-w-180 flex-1 grid-cols-12 gap-6 gap-y-2 overflow-x-auto px-6 pb-6 pt-2">
-            <div className="col-span-3 flex min-h-0 flex-col space-y-6">
-              <LeftPane />
-            </div>
-            <div className="col-span-5 flex min-h-0 flex-col">
-              <CenterPane />
-            </div>
-            <div className="col-span-4 flex min-h-0 w-full flex-col gap-4">
-              <RightPane />
-            </div>
+    <div className="min-h-screen bg-[#111]">
+      {/* Header */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
+        <span className="text-base font-bold tracking-wide text-foreground">
+          Meme Generator
+        </span>
+        <Link
+          href="/create"
+          className="rounded-md bg-[#3b82f6] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563eb]"
+        >
+          Create Meme
+        </Link>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <h1 className="mb-6 text-2xl font-bold text-foreground">
+          Recent Memes
+        </h1>
+
+        {loading && (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        )}
+
+        {!loading && entries.length === 0 && (
+          <div className="flex flex-col items-center gap-4 py-20 text-center">
+            <p className="text-lg text-muted-foreground">
+              No memes yet. Be the first!
+            </p>
+            <Link
+              href="/create"
+              className="rounded-md bg-[#3b82f6] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2563eb]"
+            >
+              Create Meme
+            </Link>
           </div>
-        </div>
-      </div>
+        )}
+
+        {!loading && entries.length > 0 && (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+            {entries.map((entry) => (
+              <div
+                key={entry.id}
+                className="overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]"
+              >
+                <div className="relative aspect-square w-full bg-[#111]">
+                  <Image
+                    src={`/gallery/${entry.filename}`}
+                    alt="meme"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

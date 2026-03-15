@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Search, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,9 @@ const CANVAS_WIDTH = 600;
 export default function LeftPane() {
   const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  const { selectedTemplate, loadTemplate, addLayer } = useEditorStore();
+  const { selectedTemplate, addLayer } = useEditorStore();
 
   const filtered = templates.filter((t) =>
     t.name.toLowerCase().includes(query.toLowerCase()),
@@ -96,7 +98,7 @@ export default function LeftPane() {
                 {filtered.map((template) => (
                   <button
                     key={template.id}
-                    onClick={() => loadTemplate(template, CANVAS_WIDTH)}
+                    onClick={() => router.push(`/create/${template.id}`)}
                     className={`group relative overflow-hidden rounded-md border transition-colors ${
                       selectedTemplate?.id === template.id
                         ? "border-[#3b82f6]"
