@@ -33,17 +33,17 @@ export async function POST(req: NextRequest) {
     templateId?: string;
   };
 
-  if (!dataUrl?.startsWith('data:image/png;base64,')) {
+  if (!dataUrl?.startsWith('data:image/')) {
     return NextResponse.json({ error: 'Invalid data URL' }, { status: 400 });
   }
 
   await fs.mkdir(GALLERY_DIR, { recursive: true });
 
   const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  const filename = `${id}.png`;
+  const filename = `${id}.jpg`;
   const filepath = path.join(GALLERY_DIR, filename);
 
-  const base64 = dataUrl.replace('data:image/png;base64,', '');
+  const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
   await fs.writeFile(filepath, Buffer.from(base64, 'base64'));
 
   const entries = await readGallery();
