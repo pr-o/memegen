@@ -16,6 +16,8 @@ import {
   type TextLayer,
 } from "@/hooks/useEditorStore";
 import { setStage } from "@/hooks/useStageRef";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import Toolbar from "./Toolbar";
 import CropOverlay from "./CropOverlay";
 
@@ -387,7 +389,10 @@ export default function CenterPane() {
           <PaddingButton onClick={addPaddingTop} />
 
           {/* position:relative is the anchor for the textarea overlay */}
-          <div className="relative shadow-2xl" style={{ width: CANVAS_WIDTH }}>
+          <div
+            className="relative my-2 shadow-2xl"
+            style={{ width: CANVAS_WIDTH }}
+          >
             {mounted && (
               <Stage
                 ref={stageRef}
@@ -524,13 +529,19 @@ export default function CenterPane() {
 
 function PaddingButton({ onClick }: { onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      title="Add padding"
+    <div
       style={{ width: CANVAS_WIDTH }}
-      className="flex h-7 items-center justify-center bg-transparent text-muted-foreground transition-colors hover:bg-[#2a2a2a] hover:text-foreground"
+      className="flex h-7 items-center justify-center"
     >
-      <span className="text-lg leading-none">+</span>
-    </button>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={onClick}
+        title="Add padding"
+        className="h-6 w-8 border-[#3a3a3a] bg-transparent text-muted-foreground hover:border-[#555] hover:bg-[#2a2a2a] hover:text-foreground"
+      >
+        <Plus className="h-3.5 w-3.5" />
+      </Button>
+    </div>
   );
 }
