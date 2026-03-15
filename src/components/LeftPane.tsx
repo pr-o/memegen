@@ -1,21 +1,27 @@
-'use client';
+"use client";
 
-import { useRef, useState } from 'react';
-import Image from 'next/image';
-import { Search, Upload, Share2 } from 'lucide-react';
-import { templates } from '@/data/templates';
-import { useEditorStore, nextLayerId, type ImageLayer } from '@/hooks/useEditorStore';
+import { useRef, useState } from "react";
+import Image from "next/image";
+import { Search, Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { templates } from "@/data/templates";
+import {
+  useEditorStore,
+  nextLayerId,
+  type ImageLayer,
+} from "@/hooks/useEditorStore";
 
 const CANVAS_WIDTH = 600;
 
 export default function LeftPane() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { selectedTemplate, loadTemplate, addLayer } = useEditorStore();
 
-  const filtered = templates.filter(t =>
-    t.name.toLowerCase().includes(query.toLowerCase())
+  const filtered = templates.filter((t) =>
+    t.name.toLowerCase().includes(query.toLowerCase()),
   );
 
   function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -27,7 +33,7 @@ export default function LeftPane() {
       const scale = Math.min(CANVAS_WIDTH / img.naturalWidth, 1);
       const layer: ImageLayer = {
         id: nextLayerId(),
-        type: 'image',
+        type: "image",
         name: file.name,
         visible: true,
         locked: false,
@@ -41,7 +47,7 @@ export default function LeftPane() {
       addLayer(layer);
     };
     img.src = src;
-    e.target.value = '';
+    e.target.value = "";
   }
 
   return (
@@ -49,24 +55,25 @@ export default function LeftPane() {
       {/* Card 1: search + template grid */}
       <div className="overflow-hidden rounded-xl bg-[#1a1a1a]">
         {/* Search + upload */}
-        <div className="flex items-center gap-2 border-b border-[#2a2a2a] p-3">
+        <div className="flex items-center gap-2 border-b border-[#2a2a2a] p-4">
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-            <input
+            <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
               type="text"
               placeholder="Search…"
               value={query}
-              onChange={e => setQuery(e.target.value)}
-              className="h-7 w-full rounded-md border border-[#2a2a2a] bg-[#111] pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+              onChange={(e) => setQuery(e.target.value)}
+              className="h-9 border-[#2a2a2a] bg-[#111] pl-8 pr-2 text-sm placeholder:text-muted-foreground focus-visible:ring-[#3b82f6]"
             />
           </div>
-          <button
+          <Button
             onClick={() => fileInputRef.current?.click()}
             title="Upload image"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#3b82f6] text-white transition-colors hover:bg-[#2563eb]"
+            className="shrink-0 bg-[#3b82f6] text-white hover:bg-[#2563eb]"
           >
-            <Upload className="h-3.5 w-3.5" />
-          </button>
+            <Upload className="h-4 w-4" />
+            Upload
+          </Button>
           <input
             ref={fileInputRef}
             type="file"
@@ -79,17 +86,19 @@ export default function LeftPane() {
         {/* Template grid — fixed height showing 2×4 thumbnails (no scroll needed for 8 templates) */}
         <div className="p-3">
           {filtered.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">No templates found.</p>
+            <p className="py-4 text-center text-xs text-muted-foreground">
+              No templates found.
+            </p>
           ) : (
             <div className="grid grid-cols-2 gap-2">
-              {filtered.map(template => (
+              {filtered.map((template) => (
                 <button
                   key={template.id}
                   onClick={() => loadTemplate(template, CANVAS_WIDTH)}
                   className={`group relative overflow-hidden rounded-md border transition-colors ${
                     selectedTemplate?.id === template.id
-                      ? 'border-[#3b82f6]'
-                      : 'border-[#2a2a2a] hover:border-[#3b82f6]/60'
+                      ? "border-[#3b82f6]"
+                      : "border-[#2a2a2a] hover:border-[#3b82f6]/60"
                   }`}
                 >
                   <div className="relative aspect-square w-full bg-[#111]">
@@ -113,17 +122,18 @@ export default function LeftPane() {
         {selectedTemplate ? (
           <>
             <div className="mb-2 flex items-start justify-between gap-2">
-              <p className="text-xs font-semibold text-foreground">{selectedTemplate.name}</p>
-              <button className="shrink-0 text-muted-foreground transition-colors hover:text-foreground">
-                <Share2 className="h-3.5 w-3.5" />
-              </button>
+              <p className="text-xl font-semibold text-foreground">
+                {selectedTemplate.name}
+              </p>
             </div>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
+            <p className="text-lg leading-relaxed text-muted-foreground">
               {selectedTemplate.description}
             </p>
           </>
         ) : (
-          <p className="text-[11px] text-muted-foreground">Select a template to see details.</p>
+          <p className="text-sm text-muted-foreground">
+            Select a template to see details.
+          </p>
         )}
       </div>
     </>
