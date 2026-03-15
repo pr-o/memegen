@@ -13,7 +13,7 @@ export default function GNB() {
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
-      <span className="text-sm font-bold tracking-wide text-foreground">
+      <span className="text-base font-bold tracking-wide text-foreground">
         Meme Generator
       </span>
       <button

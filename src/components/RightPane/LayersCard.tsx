@@ -146,7 +146,7 @@ export default function LayersCard() {
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-[#2a2a2a] px-3 py-2">
         <ImageIcon className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Layers
         </span>
       </div>
@@ -154,7 +154,7 @@ export default function LayersCard() {
       {/* Layer list */}
       <div className="p-2">
         {layers.length === 0 ? (
-          <p className="py-4 text-center text-xs text-muted-foreground">
+          <p className="py-4 text-center text-sm text-muted-foreground">
             No layers yet. Add text or media to get started.
           </p>
         ) : (

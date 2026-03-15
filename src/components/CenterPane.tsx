@@ -501,7 +501,7 @@ export default function CenterPane() {
                 className="absolute inset-0 flex items-center justify-center bg-white"
                 style={{ height: canvasHeight }}
               >
-                <p className="text-sm text-gray-400">
+                <p className="text-base text-gray-400">
                   Select a template or upload an image
                 </p>
               </div>

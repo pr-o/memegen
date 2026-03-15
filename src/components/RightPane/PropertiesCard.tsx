@@ -91,7 +91,7 @@ function ColorSwatch({
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+    <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
       {children}
     </p>
   );
@@ -337,13 +337,13 @@ export default function PropertiesCard() {
     <div className="flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-[#2a2a2a] px-3 py-2">
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           {isTextLayer ? 'Text Properties' : isImageLayer ? 'Image Properties' : 'Properties'}
         </span>
       </div>
 
       {!selectedLayer && (
-        <p className="p-3 text-xs text-muted-foreground">
+        <p className="p-3 text-sm text-muted-foreground">
           Select a layer to edit its properties.
         </p>
       )}
