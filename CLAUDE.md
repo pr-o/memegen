@@ -22,10 +22,10 @@ Node.js v22.16.0 (see `.nvmrc`). Remote: `git@github.com:pr-o/memegen.git`
 
 ```bash
 nvm use                  # activate Node v22.16.0
-npm install
-npm run dev              # start dev server
-npm run build
-npm run lint
+pnpm install
+pnpm dev                 # start dev server
+pnpm build
+pnpm lint
 ```
 
 ## File Structure
