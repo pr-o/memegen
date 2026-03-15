@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Search, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { templates } from "@/data/templates";
 import {
   useEditorStore,
@@ -83,38 +84,40 @@ export default function LeftPane() {
           />
         </div>
 
-        {/* Template grid — fixed height showing 2×4 thumbnails (no scroll needed for 8 templates) */}
-        <div className="p-3">
-          {filtered.length === 0 ? (
-            <p className="py-4 text-center text-xs text-muted-foreground">
-              No templates found.
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {filtered.map((template) => (
-                <button
-                  key={template.id}
-                  onClick={() => loadTemplate(template, CANVAS_WIDTH)}
-                  className={`group relative overflow-hidden rounded-md border transition-colors ${
-                    selectedTemplate?.id === template.id
-                      ? "border-[#3b82f6]"
-                      : "border-[#2a2a2a] hover:border-[#3b82f6]/60"
-                  }`}
-                >
-                  <div className="relative aspect-square w-full bg-[#111]">
-                    <Image
-                      src={template.src}
-                      alt={template.name}
-                      fill
-                      sizes="120px"
-                      className="object-cover"
-                    />
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Template grid — scrollable, sized to show 2×4 thumbnails */}
+        <ScrollArea className="h-[564px]">
+          <div className="p-3">
+            {filtered.length === 0 ? (
+              <p className="py-4 text-center text-xs text-muted-foreground">
+                No templates found.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {filtered.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => loadTemplate(template, CANVAS_WIDTH)}
+                    className={`group relative overflow-hidden rounded-md border transition-colors ${
+                      selectedTemplate?.id === template.id
+                        ? "border-[#3b82f6]"
+                        : "border-[#2a2a2a] hover:border-[#3b82f6]/60"
+                    }`}
+                  >
+                    <div className="relative aspect-square w-full bg-[#111]">
+                      <Image
+                        src={template.src}
+                        alt={template.name}
+                        fill
+                        sizes="120px"
+                        className="object-cover"
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </div>
 
       {/* Card 2: template info — flex-1 fills remaining column height */}
