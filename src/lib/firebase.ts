@@ -12,4 +12,4 @@ const firebaseConfig = {
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 export const storage = getStorage(app);
-export const db = getFirestore(app);
+export const db = getFirestore(app, process.env.NEXT_PUBLIC_FIREBASE_FIRESTORE_DB!);
