@@ -26,13 +26,13 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen bg-[#111]">
       {/* Header */}
-      <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
+      <header className="relative flex h-12 shrink-0 items-center border-b border-[#2a2a2a] bg-[#1a1a1a] px-4">
         <span className="text-base font-bold tracking-wide text-foreground">
           Meme Generator
         </span>
         <Link
           href="/create"
-          className="rounded-md bg-[#3b82f6] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563eb]"
+          className="absolute left-1/2 -translate-x-1/2 rounded-md bg-[#3b82f6] px-5 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#2563eb]"
         >
           Create Meme
         </Link>
