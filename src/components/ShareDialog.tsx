@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { storage, db } from '@/lib/firebase';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,11 @@ export default function ShareDialog({ open, dataUrl, onClose }: ShareDialogProps
       const storageRef = ref(storage, `memes/${id}.png`);
       await uploadString(storageRef, dataUrl, 'data_url');
       const url = await getDownloadURL(storageRef);
+      await addDoc(collection(db, 'memes'), {
+        url,
+        storagePath: `memes/${id}.png`,
+        createdAt: serverTimestamp(),
+      });
       setShareUrl(url);
       setState('done');
     } catch {

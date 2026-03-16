@@ -3,22 +3,35 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
-interface GalleryEntry {
+interface MemeEntry {
   id: string;
-  filename: string;
-  templateId: string | null;
-  createdAt: string;
+  url: string;
+  createdAt: { seconds: number } | null;
 }
 
 export default function GalleryPage() {
-  const [entries, setEntries] = useState<GalleryEntry[]>([]);
+  const [entries, setEntries] = useState<MemeEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/gallery")
-      .then((r) => r.json())
-      .then((data) => setEntries(data as GalleryEntry[]))
+    const q = query(
+      collection(db, "memes"),
+      orderBy("createdAt", "desc"),
+      limit(50)
+    );
+    getDocs(q)
+      .then((snap) => {
+        setEntries(
+          snap.docs.map((doc) => ({
+            id: doc.id,
+            url: doc.data().url as string,
+            createdAt: doc.data().createdAt as { seconds: number } | null,
+          }))
+        );
+      })
       .catch(() => setEntries([]))
       .finally(() => setLoading(false));
   }, []);
@@ -70,11 +83,12 @@ export default function GalleryPage() {
               >
                 <div className="relative aspect-square w-full bg-[#111]">
                   <Image
-                    src={`/gallery/${entry.filename}`}
+                    src={entry.url}
                     alt="meme"
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     className="object-contain"
+                    unoptimized
                   />
                 </div>
               </div>
