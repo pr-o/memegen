@@ -125,23 +125,27 @@ export default function LeftPane() {
       </div>
 
       {/* Card 2: template info — flex-1 fills remaining column height */}
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto rounded-xl bg-[#1a1a1a] p-3">
-        {selectedTemplate ? (
-          <>
-            <div className="mb-2 flex items-start justify-between gap-2">
-              <p className="text-xl font-semibold text-foreground">
-                {selectedTemplate.name}
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl bg-[#1a1a1a]">
+        <ScrollArea className="min-h-0 flex-1">
+          <div className="p-3">
+            {selectedTemplate ? (
+              <>
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <p className="text-xl font-semibold text-foreground">
+                    {selectedTemplate.name}
+                  </p>
+                </div>
+                <p className="text-lg leading-relaxed text-muted-foreground">
+                  {selectedTemplate.description}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Select a template to see details.
               </p>
-            </div>
-            <p className="text-lg leading-relaxed text-muted-foreground">
-              {selectedTemplate.description}
-            </p>
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Select a template to see details.
-          </p>
-        )}
+            )}
+          </div>
+        </ScrollArea>
       </div>
     </>
   );
