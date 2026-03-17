@@ -326,9 +326,12 @@ export default function CenterPane() {
     if (!el) return;
     const ro = new ResizeObserver(() => {
       // clientHeight includes py-8 padding (64px); buttons are inside the zoomed group
-      const available = el.clientHeight - 64;
-      const total = canvasHeight + PADDING_BUTTON_H * 2;
-      setPreviewScale(Math.min(1, available / total));
+      const availableHeight = el.clientHeight - 64;
+      // Use parent width (stable flex-1 container) to avoid feedback loop with zoom
+      const availableWidth = (el.parentElement?.clientWidth ?? el.clientWidth) - 32;
+      const scaleByHeight = availableHeight / (canvasHeight + PADDING_BUTTON_H * 2);
+      const scaleByWidth = availableWidth / CANVAS_WIDTH;
+      setPreviewScale(Math.min(1, scaleByHeight, scaleByWidth));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -461,7 +464,7 @@ export default function CenterPane() {
                   {/* Transformer */}
                   <Transformer
                     ref={transformerRef}
-                    rotateEnabled={false}
+                    rotateEnabled={true}
                     keepRatio={shiftHeld}
                     anchorFill="#3b82f6"
                     anchorStroke="#1d4ed8"

@@ -16,6 +16,17 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: "Meme Generator",
   description: "Create and customize memes with ease",
+  openGraph: {
+    title: "Meme Generator",
+    description: "Create and customize memes with ease",
+    images: [{ url: "/og-memegen.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Meme Generator",
+    description: "Create and customize memes with ease",
+    images: ["/og-memegen.png"],
+  },
 };
 
 export default function RootLayout({

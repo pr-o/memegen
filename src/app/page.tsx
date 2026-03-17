@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Spinner } from "@/components/ui/spinner";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -13,10 +14,19 @@ interface MemeEntry {
   createdAt: { seconds: number } | null;
 }
 
-function MemeCard({ entry }: { entry: MemeEntry }) {
+function MemeCard({
+  entry,
+  onClick,
+}: {
+  entry: MemeEntry;
+  onClick: () => void;
+}) {
   const [loaded, setLoaded] = useState(false);
   return (
-    <div className="overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a]">
+    <button
+      onClick={onClick}
+      className="cursor-pointer overflow-hidden rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]"
+    >
       <div className="relative aspect-square w-full bg-[#111]">
         {!loaded && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -33,19 +43,20 @@ function MemeCard({ entry }: { entry: MemeEntry }) {
           onLoad={() => setLoaded(true)}
         />
       </div>
-    </div>
+    </button>
   );
 }
 
 export default function GalleryPage() {
   const [entries, setEntries] = useState<MemeEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<MemeEntry | null>(null);
 
   useEffect(() => {
     const q = query(
       collection(db, "memes"),
       orderBy("createdAt", "desc"),
-      limit(50)
+      limit(50),
     );
     getDocs(q)
       .then((snap) => {
@@ -54,7 +65,7 @@ export default function GalleryPage() {
             id: doc.id,
             url: doc.data().url as string,
             createdAt: doc.data().createdAt as { seconds: number } | null,
-          }))
+          })),
         );
       })
       .catch(() => setEntries([]))
@@ -81,9 +92,7 @@ export default function GalleryPage() {
           Recent Memes
         </h1>
 
-        {loading && (
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        )}
+        {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
 
         {!loading && entries.length === 0 && (
           <div className="flex flex-col items-center gap-4 py-20 text-center">
@@ -102,11 +111,33 @@ export default function GalleryPage() {
         {!loading && entries.length > 0 && (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {entries.map((entry) => (
-              <MemeCard key={entry.id} entry={entry} />
+              <MemeCard
+                key={entry.id}
+                entry={entry}
+                onClick={() => setSelected(entry)}
+              />
             ))}
           </div>
         )}
       </main>
+
+      <Dialog
+        open={!!selected}
+        onOpenChange={(open) => !open && setSelected(null)}
+      >
+        <DialogContent className="min-w-2xl max-w-4xl border-[#2a2a2a] bg-[#1a1a1a] p-6">
+          {selected && (
+            <Image
+              src={selected.url}
+              alt="meme preview"
+              width={1200}
+              height={1200}
+              className="max-h-[80vh] w-full rounded-lg object-contain"
+              unoptimized
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -23,7 +23,9 @@ export default function LeftPane() {
 
   const { selectedTemplate, addLayer } = useEditorStore();
 
-  const filtered = templates.filter((t) =>
+  const [shuffled] = useState(() => [...templates].sort(() => Math.random() - 0.5));
+
+  const filtered = shuffled.filter((t) =>
     t.name.toLowerCase().includes(query.toLowerCase()),
   );
 
@@ -56,9 +58,9 @@ export default function LeftPane() {
   return (
     <>
       {/* Card 1: search + template grid */}
-      <div className="overflow-hidden rounded-xl bg-[#1a1a1a]">
+      <div className="flex min-h-0 flex-col overflow-hidden rounded-xl bg-[#1a1a1a]">
         {/* Search + upload */}
-        <div className="flex items-center gap-2 border-b border-[#2a2a2a] p-4">
+        <div className="flex shrink-0 items-center gap-2 border-b border-[#2a2a2a] p-4">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -87,7 +89,7 @@ export default function LeftPane() {
         </div>
 
         {/* Template grid — scrollable, sized to show 2×4 thumbnails */}
-        <ScrollArea className="h-[564px]">
+        <ScrollArea className="min-h-0 flex-1">
           <div className="p-3">
             {filtered.length === 0 ? (
               <p className="py-4 text-center text-xs text-muted-foreground">

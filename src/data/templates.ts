@@ -50,7 +50,7 @@ export const templates: MemeTemplate[] = [
         y: 0.05,
         w: 0.44,
         h: 0.4,
-        defaultText: "Text 1",
+        defaultText: "ONE GLASS OF WINE",
         style: {
           ...defaultStyle,
           fill: "#000000",
@@ -65,7 +65,7 @@ export const templates: MemeTemplate[] = [
         y: 0.55,
         w: 0.44,
         h: 0.4,
-        defaultText: "Text 2",
+        defaultText: "TWO BOTTLES OF WINE",
         style: {
           ...defaultStyle,
           fill: "#000000",
@@ -91,7 +91,7 @@ export const templates: MemeTemplate[] = [
         y: 0.06,
         w: 0.38,
         h: 0.18,
-        defaultText: "Text 1",
+        defaultText: "LOL",
         style: {
           ...defaultStyle,
           fill: "#000000",
@@ -106,7 +106,7 @@ export const templates: MemeTemplate[] = [
         y: 0.03,
         w: 0.38,
         h: 0.18,
-        defaultText: "Text 2",
+        defaultText: "LMAO",
         style: {
           ...defaultStyle,
           fill: "#000000",
@@ -121,7 +121,7 @@ export const templates: MemeTemplate[] = [
         y: 0.8,
         w: 0.9,
         h: 0.15,
-        defaultText: "Text 3",
+        defaultText: "ME",
         style: { ...defaultStyle, fontSize: 32 },
       },
     ],
@@ -658,7 +658,7 @@ export const templates: MemeTemplate[] = [
         y: 0.02,
         w: 0.9,
         h: 0.2,
-        defaultText: "WE GOT ___ BEFORE GTA 6",
+        defaultText: "ALIENS",
         style: { ...defaultStyle },
       },
     ],
