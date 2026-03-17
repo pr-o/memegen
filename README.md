@@ -41,6 +41,16 @@ A web-based meme generator inspired by [9GAG Meme Generator](https://meme.9gag.c
 - **가운데**: 툴바 (텍스트 추가, 미디어 추가, 실행 취소/다시 실행, 자르기) + Konva 캔버스. 캔버스 위아래의 `+` 버튼으로 수직 여백(80px) 추가 가능
 - **오른쪽 패널**: Finish 버튼, 레이어 카드, 속성 카드 (텍스트/이미지 레이어 속성)
 
+## 테스트
+
+```bash
+pnpm test        # 단위/통합 테스트 (Jest + React Testing Library)
+pnpm test:e2e    # E2E 테스트 (Playwright)
+```
+
+- **단위 테스트** (`src/__tests__/`): Jest + React Testing Library — 템플릿 데이터 유효성, Zustand 스토어 액션 (레이어 추가/삭제/수정/정렬/선택)
+- **E2E 테스트** (`e2e/`): Playwright (Chromium) — 갤러리 페이지 및 에디터 페이지의 주요 UI 요소와 네비게이션 동작 검증
+
 ---
 
 # Meme Generator (Memegen)
@@ -79,3 +89,13 @@ Three-column full-viewport-height layout (dark theme):
 - **Left pane**: Template search, thumbnail grid, image upload
 - **Center**: Toolbar (Add Text, Add Media, Undo, Redo, Crop) + Konva canvas. `+` buttons above and below the canvas add 80px of vertical padding
 - **Right pane**: Finish button, Layers card, Properties card (text and image layer properties)
+
+## Testing
+
+```bash
+pnpm test        # Unit tests (Jest + React Testing Library)
+pnpm test:e2e    # End-to-end tests (Playwright)
+```
+
+- **Unit tests** (`src/__tests__/`): Jest + React Testing Library — template data validation, Zustand store actions (add/remove/update/reorder/select layers)
+- **E2E tests** (`e2e/`): Playwright (Chromium) — key UI elements and navigation on the gallery and editor pages
