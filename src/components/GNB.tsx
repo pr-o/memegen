@@ -22,17 +22,7 @@ export default function GNB() {
     const suffix = selectedTemplate?.id ? `-${selectedTemplate.id}` : '';
     exportAsPng(`meme${suffix}.jpg`);
 
-    // Save to local gallery in the background
-    fetch('/api/gallery', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        dataUrl,
-        templateId: selectedTemplate?.id ?? null,
-      }),
-    }).catch(() => {/* ignore */});
-
-    // Then ask about uploading to cloud
+    // Ask about uploading to cloud
     setPendingDataUrl(dataUrl);
     setDialogOpen(true);
   }

@@ -39,7 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# gallery runtime files
-/data/gallery.json
-/public/gallery/
