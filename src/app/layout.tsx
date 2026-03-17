@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -40,6 +41,7 @@ export default function RootLayout({
         className={`${roboto.variable} ${robotoMono.variable} antialiased`}
       >
         {children}
+        <Toaster theme="dark" position="bottom-right" />
       </body>
     </html>
   );
