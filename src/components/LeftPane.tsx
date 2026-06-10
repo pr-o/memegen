@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { Search, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ const CANVAS_WIDTH = 600;
 export default function LeftPane() {
   const [query, setQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const { selectedTemplate, addLayer } = useEditorStore();
 
@@ -98,9 +97,12 @@ export default function LeftPane() {
             ) : (
               <div className="grid grid-cols-2 gap-2">
                 {filtered.map((template) => (
-                  <button
+                  // Native <a> link so a template click navigates even before the
+                  // page finishes hydrating — the primary action stays responsive
+                  // during the brief hydration window.
+                  <Link
                     key={template.id}
-                    onClick={() => router.push(`/create/${template.id}`)}
+                    href={`/create/${template.id}`}
                     className={`group relative overflow-hidden rounded-md border transition-colors ${
                       selectedTemplate?.id === template.id
                         ? "border-[#3b82f6]"
@@ -116,7 +118,7 @@ export default function LeftPane() {
                         className="object-cover"
                       />
                     </div>
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
