@@ -1,7 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { SketchPicker, type ColorResult } from 'react-color';
+import dynamic from 'next/dynamic';
+import type { ColorResult } from 'react-color';
+
+// react-color (~339 KB chunk) is only needed once a user opens a color swatch,
+// which can't happen until they've selected a text layer. Loading it eagerly
+// put it in the synchronous /create critical path and blocked hydration —
+// every click was dead until it parsed. Defer it to an async chunk instead.
+const SketchPicker = dynamic(
+  () => import('react-color').then((m) => m.SketchPicker),
+  { ssr: false },
+);
 import {
   AlignLeft, AlignCenter, AlignRight,
   AlignStartVertical, AlignCenterVertical, AlignEndVertical,

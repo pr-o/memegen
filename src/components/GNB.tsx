@@ -1,14 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { exportAsPng, getCanvasDataUrl } from '@/hooks/useStageRef';
 import { useEditorStore } from '@/hooks/useEditorStore';
-import ShareDialog from '@/components/ShareDialog';
+
+// ShareDialog statically pulls in firebase/storage + firebase/firestore (hundreds
+// of KB) plus the radix Dialog. It's only ever shown after clicking "Finish", so
+// keep it out of the synchronous /create bundle and only load its chunk once the
+// dialog is first opened.
+const ShareDialog = dynamic(() => import('@/components/ShareDialog'), {
+  ssr: false,
+});
 
 export default function GNB() {
   const { selectLayer, selectedTemplate } = useEditorStore();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMounted, setDialogMounted] = useState(false);
   const [pendingDataUrl, setPendingDataUrl] = useState<string | null>(null);
 
   async function handleFinish() {
@@ -22,8 +31,9 @@ export default function GNB() {
     const suffix = selectedTemplate?.id ? `-${selectedTemplate.id}` : '';
     exportAsPng(`meme${suffix}.jpg`);
 
-    // Ask about uploading to cloud
+    // Ask about uploading to cloud — mount the dialog (and load its chunk) lazily
     setPendingDataUrl(dataUrl);
+    setDialogMounted(true);
     setDialogOpen(true);
   }
 
@@ -46,11 +56,13 @@ export default function GNB() {
         </button>
       </header>
 
-      <ShareDialog
-        open={dialogOpen}
-        dataUrl={pendingDataUrl}
-        onClose={handleClose}
-      />
+      {dialogMounted && (
+        <ShareDialog
+          open={dialogOpen}
+          dataUrl={pendingDataUrl}
+          onClose={handleClose}
+        />
+      )}
     </>
   );
 }

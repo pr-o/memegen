@@ -1,6 +1,6 @@
 import LeftPane from "@/components/LeftPane";
 import CenterPane from "@/components/CenterPaneLazy";
-import RightPane from "@/components/RightPane";
+import RightPane from "@/components/RightPaneLazy";
 import KeyboardHandler from "@/components/KeyboardHandler";
 import GNB from "@/components/GNB";
 
